@@ -11,7 +11,6 @@ import UIKit
 class NewCityViewController: UITableViewController {
 
     var currentCity: Weather?
-    var newCity: Weather?
     
     @IBOutlet var labelNewCity: UITextField!
     
@@ -20,19 +19,28 @@ class NewCityViewController: UITableViewController {
     override func viewDidLoad() {
      
         super.viewDidLoad()
+        //следующий код только для первого запуска при сохранении данных в базу данных
+/*        DispatchQueue.main.async {
+            self.newCity.saveWeathers()
+        }
+*/
         buttonSave.isEnabled = false
         labelNewCity.addTarget(self, action: #selector(textFieldChanged), for: .editingChanged)
         setupEditScreen()
     }
     
     func saveCity() {
-        //let newCity = Weather(city: labelNewCity.text!, temp: "", windDirection: "", windSpeed: "", pressure: "", humidity: "")
+
+        let newWeather = Weather(city: labelNewCity.text!, temp: "", windDirection: "", windSpeed: "", pressure: "", humidity: "")
         if currentCity != nil {
-            currentCity?.city = labelNewCity.text!
+            try! realm.write {
+                currentCity?.city = newWeather.city
+            }
+            
         } else {
-            newCity = Weather(city: labelNewCity.text!, temp: "", windDirection: "", windSpeed: "", pressure: "", humidity: "")
-            //weathers.append(newCity!)
+            StorageManager.saveObject(newWeather)
         }
+        
     }
     
     private func setupEditScreen() {
