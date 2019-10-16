@@ -66,3 +66,15 @@ class MainViewController: UITableViewController {
         }
     }
 }
+/*
+API key:
+- Your API key is 2feda31e3043ce19f44dc16f6eab0efe
+- Within the next couple of hours, it will be activated and ready to use
+- You can later create more API keys on your account page
+- Please, always use your API key in each API call
+
+Endpoint:
+- Please, use the endpoint api.openweathermap.org for your API calls
+- Example of API call:
+api.openweathermap.org/data/2.5/weather?q=London,uk&APPID=2feda31e3043ce19f44dc16f6eab0efe
+*/

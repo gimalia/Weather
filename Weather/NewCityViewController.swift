@@ -25,10 +25,18 @@ class NewCityViewController: UITableViewController {
         }
 */
         buttonSave.isEnabled = false
+        self.labelNewCity.delegate = self
         labelNewCity.addTarget(self, action: #selector(textFieldChanged), for: .editingChanged)
         setupEditScreen()
     }
     
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if indexPath.row == 0 {
+            
+        } else {
+            view.endEditing(true)
+        }
+    }
     func saveCity() {
 
         let newWeather = Weather(city: labelNewCity.text!, temp: "", windDirection: "", windSpeed: "", pressure: "", humidity: "")
@@ -65,6 +73,20 @@ class NewCityViewController: UITableViewController {
 }
 
 extension NewCityViewController: UITextFieldDelegate {
+    
+   func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        //проверить наличие города
+    if labelNewCity.text?.isEmpty == true {
+        buttonSave.isEnabled = false
+    } else {
+        buttonSave.isEnabled = true
+    }
+    
+      //  buttonSave.isEnabled = true //только в том случае, если город есть, иначе false
+        return true
+    }
+  
     @objc private func textFieldChanged() {
         if labelNewCity.text?.isEmpty == false {
             buttonSave.isEnabled = true
@@ -72,4 +94,8 @@ extension NewCityViewController: UITextFieldDelegate {
             buttonSave.isEnabled = false
         }
     }
-   }
+}
+//
+//extension NewCityViewController: UITextFieldDelegate {
+//
+//}
