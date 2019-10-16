@@ -95,7 +95,4 @@ extension NewCityViewController: UITextFieldDelegate {
         }
     }
 }
-//
-//extension NewCityViewController: UITextFieldDelegate {
-//
-//}
+
