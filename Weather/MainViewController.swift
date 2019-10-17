@@ -5,7 +5,25 @@
 //  Created by Macbook on 16.10.2019.
 //  Copyright © 2019 Macbook. All rights reserved.
 //
-
+        
+        
+//             newWeather = Weather(city: weatherTemp.name, temp: String(weatherTemp.main.temp), windDirection: String(weatherTemp.wind.deg), windSpeed: String(weatherTemp.wind.speed), pressure: String(weatherTemp.main.pressure), humidity: String(weatherTemp.main.humidity))
+        
+//        try! realm.write {
+//                    weather.city = newWeather!.city
+//                    weather.humidity = newWeather!.humidity
+//                    weather.pressure = newWeather!.pressure
+//                    weather.temp = newWeather!.temp
+//                    weather.windDirection = newWeather!.windDirection
+//                    weather.windSpeed = newWeather!.windSpeed
+//        }
+        //let weather = weathers[indexPath.row]
+      //  cell.labelCity?.text = weather?.name
+//        cell.labelTemp?.text = String(weather!.main.temp)
+//        cell.labelWindDirection?.text = weather.wind.direction
+//        cell.labelWindSpeed?.text = weather.wind.speed
+//        cell.labelPressure?.text = weather.pressure
+//        cell.labelHumidity?.text = weather.humidity
 import UIKit
 import RealmSwift
 
@@ -27,17 +45,14 @@ class MainViewController: UITableViewController {
         let wind : windStruct
     }
     
-    struct objectData: Decodable {
-        let data: [WeatherStruct]
-    }
-    
     var weathers: Results<Weather>!
     
-    var weatherSave: WeatherStruct?
+    //var weatherSave: WeatherStruct?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         weathers = realm.objects(Weather.self)
+        
         for i in 0..<weathers.count {
             loadWeather(index: i) { (finish) in
                 if finish {
@@ -57,26 +72,6 @@ class MainViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath) as! CustomTableViewCell
         let weather = weathers[indexPath.row]
-        
-        
-//             newWeather = Weather(city: weatherTemp.name, temp: String(weatherTemp.main.temp), windDirection: String(weatherTemp.wind.deg), windSpeed: String(weatherTemp.wind.speed), pressure: String(weatherTemp.main.pressure), humidity: String(weatherTemp.main.humidity))
-        
-//        try! realm.write {
-//                    weather.city = newWeather!.city
-//                    weather.humidity = newWeather!.humidity
-//                    weather.pressure = newWeather!.pressure
-//                    weather.temp = newWeather!.temp
-//                    weather.windDirection = newWeather!.windDirection
-//                    weather.windSpeed = newWeather!.windSpeed
-//        }
-        //let weather = weathers[indexPath.row]
-      //  cell.labelCity?.text = weather?.name
-//        cell.labelTemp?.text = String(weather!.main.temp)
-//        cell.labelWindDirection?.text = weather.wind.direction
-//        cell.labelWindSpeed?.text = weather.wind.speed
-//        cell.labelPressure?.text = weather.pressure
-//        cell.labelHumidity?.text = weather.humidity
-        
         cell.labelCity?.text = weather.city
         cell.labelTemp?.text = weather.temp
         cell.labelWindDirection?.text = weather.windDirection
@@ -114,24 +109,34 @@ class MainViewController: UITableViewController {
         }
     }
     
-
+// нужно сделать еще поиск New York
     func loadWeather(index: Int, handler: @escaping (_ status: Bool) -> ()) {
         let API_key = "&APPID=2feda31e3043ce19f44dc16f6eab0efe"
         let URL_string = "http://api.openweathermap.org/data/2.5/weather?q="
         let city = weathers[index].city
         let cityNew = city.replacingOccurrences(of: " ", with: "\u{20}", options: .regularExpression, range: nil)
         let jsonUrlString = URL_string + cityNew + "&units=metric" + API_key
-        print(jsonUrlString)
         guard let url = URL(string: jsonUrlString) else { return}
         URLSession.shared.dataTask(with: url) { (data, response, err) in
             guard let data = data else { return }
-//            print(data)
             do {
-                self.weatherSave = try JSONDecoder().decode(WeatherStruct.self, from: data)
-//                self.weatherTmpObj = try JSONDecoder().decode(objectData.self, from: data)
-//                self.weatherTmp = self.weatherTmpObj!.data
-                //handler(true)
-//                print(self.weatherSave?.name)
+                let weatherSave = try JSONDecoder().decode(WeatherStruct.self, from: data)
+                DispatchQueue.main.async {
+                    
+                    let newWeather = Weather(city: weatherSave.name, temp: String(weatherSave.main.temp),
+                                             windDirection: String(weatherSave.wind.deg), windSpeed: String(weatherSave.wind.speed),
+                                             pressure: String(weatherSave.main.pressure), humidity: String(weatherSave.main.humidity))
+     
+                    try! realm.write {
+                        //self.weathers[index].city = newWeather.city
+                        self.weathers[index].temp = newWeather.temp
+                        self.weathers[index].windSpeed = newWeather.windSpeed
+                        self.weathers[index].windDirection = newWeather.windDirection
+                        self.weathers[index].pressure = newWeather.pressure
+                        self.weathers[index].humidity = newWeather.humidity
+                     }
+                    self.tableView.reloadData()
+                }
             } catch {
                 print("Город не найден " + city)
             }
@@ -140,5 +145,4 @@ class MainViewController: UITableViewController {
        
     }
 }
-
 
