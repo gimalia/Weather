@@ -219,6 +219,7 @@
                     </navigationItem>
                     <connections>
                         <outlet property="buttonSave" destination="1KA-XG-l8E" id="r8X-Nw-bRd"/>
+                        <outlet property="indicatorActivity" destination="Vu0-Oy-kWc" id="Fl1-aZ-fDz"/>
                         <outlet property="labelNewCity" destination="AfE-hy-681" id="OMr-Nw-guq"/>
                     </connections>
                 </tableViewController>

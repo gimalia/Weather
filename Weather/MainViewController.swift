@@ -25,7 +25,7 @@ struct WeatherStruct: Decodable {
     let wind : windStruct
 }
 
-class MainViewController: UITableViewController {
+class MainViewController: UITableViewController, UIGestureRecognizerDelegate {
    
     var weathers: Results<Weather>!
     var indicatorIsHidden: Bool = true
@@ -42,8 +42,26 @@ class MainViewController: UITableViewController {
             
         }
         fetchData()
+        gesture()
     }
-      
+    
+    @objc func reportVerticalSwipe(gesture: UISwipeGestureRecognizer) {
+        //print("получаем данные...")
+        fetchData()
+    }
+    
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
+                           shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+          return true
+    }
+    
+    func gesture() {
+        let vertical = UISwipeGestureRecognizer(target: self, action: #selector(reportVerticalSwipe))
+        vertical.direction = UISwipeGestureRecognizer.Direction.down
+        vertical.delegate = self
+        tableView.addGestureRecognizer(vertical)
+    }
+    
     func findWindDirection(direction: Double) -> String {
        
         let windDirectionString: [String] = [
@@ -79,6 +97,7 @@ class MainViewController: UITableViewController {
         }
         return ""
     }
+    
     func fetchData() {
          for i in 0..<weathers.count {
              loadWeather(index: i) { (finish) in
@@ -94,7 +113,7 @@ class MainViewController: UITableViewController {
         return weathers.isEmpty ? 0 : weathers.count
     }
 
-    
+
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath) as! CustomTableViewCell
         let weather = weathers[indexPath.row]
