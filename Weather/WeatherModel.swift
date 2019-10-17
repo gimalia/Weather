@@ -25,20 +25,20 @@ class Weather: Object {
         self.pressure = pressure
         self.humidity = humidity
     }
-    //следующей код только при первом запуске при сохранении установочных данных в базу данных
-    /*
+
+    // Установка начальных данных при первой загрузке приложения
     let cities = ["Kazan","Moscow","New York","Paris"]
     
     func saveWeathers() {
         for city in cities {
             let newWeather = Weather()
             newWeather.city = city
-            newWeather.temp = "5"
+            newWeather.temp = "5℃"
             newWeather.humidity = "50%"
             newWeather.pressure = "800 мм.рт.ст"
-            newWeather.windDirection = "с-з"
+            newWeather.windDirection = "С-З"
             newWeather.windSpeed = " 10 м/с"
             StorageManager.saveObject(newWeather)
         }
-    }*/
+    }
 }

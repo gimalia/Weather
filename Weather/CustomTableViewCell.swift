@@ -16,5 +16,6 @@ class CustomTableViewCell: UITableViewCell {
     @IBOutlet var labelWindSpeed: UILabel! //Сила ветра
     @IBOutlet var labelPressure: UILabel!//Давление
     @IBOutlet var labelHumidity: UILabel!//Влажность
-
+    @IBOutlet var activityIndicator: UIActivityIndicatorView!
+    
 }

@@ -7,61 +7,87 @@
 //
         
         
-//             newWeather = Weather(city: weatherTemp.name, temp: String(weatherTemp.main.temp), windDirection: String(weatherTemp.wind.deg), windSpeed: String(weatherTemp.wind.speed), pressure: String(weatherTemp.main.pressure), humidity: String(weatherTemp.main.humidity))
-        
-//        try! realm.write {
-//                    weather.city = newWeather!.city
-//                    weather.humidity = newWeather!.humidity
-//                    weather.pressure = newWeather!.pressure
-//                    weather.temp = newWeather!.temp
-//                    weather.windDirection = newWeather!.windDirection
-//                    weather.windSpeed = newWeather!.windSpeed
-//        }
-        //let weather = weathers[indexPath.row]
-      //  cell.labelCity?.text = weather?.name
-//        cell.labelTemp?.text = String(weather!.main.temp)
-//        cell.labelWindDirection?.text = weather.wind.direction
-//        cell.labelWindSpeed?.text = weather.wind.speed
-//        cell.labelPressure?.text = weather.pressure
-//        cell.labelHumidity?.text = weather.humidity
 import UIKit
 import RealmSwift
 
+struct WeatherStruct: Decodable {
+    struct mainStruct: Decodable {
+        let temp: Double
+        let pressure: Double
+        let humidity: Double
+    }
+    struct windStruct: Decodable {
+        let speed: Double
+        let deg: Double
+    }
+    let name: String
+    let main: mainStruct
+    let wind : windStruct
+}
+
 class MainViewController: UITableViewController {
    
-   
-    struct WeatherStruct: Decodable {
-        struct mainStruct: Decodable {
-            let temp: Double
-            let pressure: Double
-            let humidity: Double
-        }
-        struct windStruct: Decodable {
-            let speed: Double
-            let deg: Double
-        }
-        let name: String
-        let main: mainStruct
-        let wind : windStruct
-    }
-    
     var weathers: Results<Weather>!
-    
-    //var weatherSave: WeatherStruct?
+    var indicatorIsHidden: Bool = true
+    var currentCity = Weather(city: "", temp: "", windDirection: "", windSpeed: "", pressure: "", humidity: "")
     
     override func viewDidLoad() {
         super.viewDidLoad()
         weathers = realm.objects(Weather.self)
-        
-        for i in 0..<weathers.count {
-            loadWeather(index: i) { (finish) in
-                if finish {
-                    self.tableView.reloadData()
-                }
-            }
+        if weathers.count == 0 {
+            // следующий код только для первого запуска при сохранении данных в базу данных
+
+               print("первый запуск программы")
+                currentCity.saveWeathers()
+            
         }
+        fetchData()
     }
+      
+    func findWindDirection(direction: Double) -> String {
+       
+        let windDirectionString: [String] = [
+            "С",
+            "С-В",
+            "В",
+            "Ю-В",
+            "Ю",
+            "Ю-З",
+            "З",
+            "С-З",
+            "С"
+        ]
+        let windDirectionArray = [
+        [0, 22],
+        [23, 67],
+        [68, 112],
+        [113, 157],
+        [158, 202],
+        [203, 247],
+        [248, 292],
+        [293, 337],
+        [338, 359]
+        ]
         
+        let iDirection = Int(direction)
+        var k = 0
+        for i in windDirectionArray {
+            if i[0] <= iDirection && iDirection <= i[1] {
+                return windDirectionString[k]
+            }
+            k+=1
+        }
+        return ""
+    }
+    func fetchData() {
+         for i in 0..<weathers.count {
+             loadWeather(index: i) { (finish) in
+                 if finish {
+                     //self.tableView.reloadData()
+                 }
+             }
+         }
+    }
     // MARK: - Table view data source
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
 
@@ -78,6 +104,13 @@ class MainViewController: UITableViewController {
         cell.labelWindSpeed?.text = weather.windSpeed
         cell.labelPressure?.text = weather.pressure
         cell.labelHumidity?.text = weather.humidity
+        cell.activityIndicator.hidesWhenStopped = true
+        cell.activityIndicator.isHidden = indicatorIsHidden
+        if indicatorIsHidden {
+            cell.activityIndicator.stopAnimating()
+        } else {
+            cell.activityIndicator.startAnimating()
+        }
         return cell
     }
     
@@ -95,7 +128,7 @@ class MainViewController: UITableViewController {
     @IBAction func unwindSegue(_ segue: UIStoryboardSegue) {
         guard let newCityVC = segue.source as? NewCityViewController else { return }
         newCityVC.saveCity()
-        tableView.reloadData()
+        fetchData()
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -109,36 +142,41 @@ class MainViewController: UITableViewController {
         }
     }
     
-// нужно сделать еще поиск New York
     func loadWeather(index: Int, handler: @escaping (_ status: Bool) -> ()) {
         let API_key = "&APPID=2feda31e3043ce19f44dc16f6eab0efe"
         let URL_string = "http://api.openweathermap.org/data/2.5/weather?q="
         let city = weathers[index].city
-        let cityNew = city.replacingOccurrences(of: " ", with: "\u{20}", options: .regularExpression, range: nil)
-        let jsonUrlString = URL_string + cityNew + "&units=metric" + API_key
+        let cityNew = city.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        let jsonUrlString = URL_string + cityNew! + "&units=metric" + API_key
         guard let url = URL(string: jsonUrlString) else { return}
+        indicatorIsHidden = false
+        tableView.reloadData()
         URLSession.shared.dataTask(with: url) { (data, response, err) in
             guard let data = data else { return }
             do {
                 let weatherSave = try JSONDecoder().decode(WeatherStruct.self, from: data)
                 DispatchQueue.main.async {
                     
-                    let newWeather = Weather(city: weatherSave.name, temp: String(weatherSave.main.temp),
-                                             windDirection: String(weatherSave.wind.deg), windSpeed: String(weatherSave.wind.speed),
-                                             pressure: String(weatherSave.main.pressure), humidity: String(weatherSave.main.humidity))
+                    let newWeather = Weather(
+                        city: weatherSave.name,
+                        temp: String(Int(weatherSave.main.temp))+"℃",
+                        windDirection: self.findWindDirection(direction: weatherSave.wind.deg),
+                        windSpeed: String(Int(weatherSave.wind.speed)) + "м/с",
+                        pressure: String(Int(weatherSave.main.pressure * 0.75)) + " мм.рт.ст.",
+                        humidity: String(Int(weatherSave.main.humidity)) + "%")
      
                     try! realm.write {
-                        //self.weathers[index].city = newWeather.city
                         self.weathers[index].temp = newWeather.temp
                         self.weathers[index].windSpeed = newWeather.windSpeed
                         self.weathers[index].windDirection = newWeather.windDirection
                         self.weathers[index].pressure = newWeather.pressure
                         self.weathers[index].humidity = newWeather.humidity
+                        self.indicatorIsHidden = true
                      }
                     self.tableView.reloadData()
                 }
             } catch {
-                print("Город не найден " + city)
+                handler(false)
             }
         }.resume()
         handler(true)

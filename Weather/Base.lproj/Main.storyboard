@@ -22,6 +22,9 @@
                                     <rect key="frame" x="0.0" y="0.0" width="414" height="130"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
+                                        <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="LTt-92-ji5">
+                                            <rect key="frame" x="197" y="55" width="20" height="20"/>
+                                        </activityIndicatorView>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Kazan" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Bu0-cd-gC1">
                                             <rect key="frame" x="20" y="11" width="309" height="30"/>
                                             <constraints>
@@ -120,6 +123,7 @@
                                         <constraint firstItem="jqd-Ga-2KK" firstAttribute="top" secondItem="Dw9-ZW-g2s" secondAttribute="bottom" constant="7" id="FnD-aY-m78"/>
                                         <constraint firstAttribute="trailing" secondItem="dJc-WS-gV2" secondAttribute="trailing" constant="20" id="GCV-kF-7ox"/>
                                         <constraint firstAttribute="bottom" secondItem="jqd-Ga-2KK" secondAttribute="bottom" constant="11" id="I7r-HR-uwM"/>
+                                        <constraint firstItem="LTt-92-ji5" firstAttribute="centerX" secondItem="hJg-ey-WOt" secondAttribute="centerX" id="KxL-oh-6zu"/>
                                         <constraint firstItem="HpJ-7L-gvb" firstAttribute="leading" secondItem="Bu0-cd-gC1" secondAttribute="trailing" constant="8" id="M3w-PV-dZp"/>
                                         <constraint firstAttribute="trailing" secondItem="z9w-eX-e5N" secondAttribute="trailing" constant="181" id="OPe-k7-n6I"/>
                                         <constraint firstItem="Bu0-cd-gC1" firstAttribute="top" secondItem="hJg-ey-WOt" secondAttribute="top" constant="11" id="QkM-7f-51I"/>
@@ -136,11 +140,13 @@
                                         <constraint firstItem="z9w-eX-e5N" firstAttribute="leading" secondItem="fzm-18-CPH" secondAttribute="trailing" constant="19" id="knC-Fm-J8S"/>
                                         <constraint firstItem="unT-wT-UKZ" firstAttribute="leading" secondItem="jqd-Ga-2KK" secondAttribute="trailing" constant="8" id="oGy-Jk-PJW"/>
                                         <constraint firstItem="z9w-eX-e5N" firstAttribute="top" secondItem="Bu0-cd-gC1" secondAttribute="bottom" constant="8" id="qUX-7o-tck"/>
+                                        <constraint firstItem="LTt-92-ji5" firstAttribute="centerY" secondItem="hJg-ey-WOt" secondAttribute="centerY" id="vVM-Pb-8G4"/>
                                         <constraint firstItem="fzm-18-CPH" firstAttribute="leading" secondItem="Dw9-ZW-g2s" secondAttribute="trailing" constant="19" id="vhC-YN-VgF"/>
                                         <constraint firstAttribute="bottom" secondItem="unT-wT-UKZ" secondAttribute="bottom" constant="10" id="wE1-rF-RyN"/>
                                     </constraints>
                                 </tableViewCellContentView>
                                 <connections>
+                                    <outlet property="activityIndicator" destination="LTt-92-ji5" id="Qyf-5h-XC1"/>
                                     <outlet property="labelCity" destination="Bu0-cd-gC1" id="ld0-w1-1oI"/>
                                     <outlet property="labelHumidity" destination="dJc-WS-gV2" id="wbV-Zz-P0L"/>
                                     <outlet property="labelPressure" destination="unT-wT-UKZ" id="2bg-78-XJb"/>
@@ -173,9 +179,13 @@
             <objects>
                 <tableViewController id="PQY-01-haP" customClass="NewCityViewController" customModule="Weather" customModuleProvider="target" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="static" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="B24-P6-jgA">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="842"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <activityIndicatorView key="tableFooterView" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="medium" id="Vu0-Oy-kWc">
+                            <rect key="frame" x="0.0" y="166" width="414" height="44"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        </activityIndicatorView>
                         <sections>
                             <tableViewSection id="yfg-eu-yK0">
                                 <cells>
@@ -277,6 +287,6 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="vI5-o0-EkE"/>
+        <segue reference="EsT-LB-Gdg"/>
     </inferredMetricsTieBreakers>
 </document>

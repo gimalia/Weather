@@ -16,14 +16,14 @@ class NewCityViewController: UITableViewController {
     
     @IBOutlet var buttonSave: UIBarButtonItem!
     
+    @IBOutlet var indicatorActivity: UIActivityIndicatorView!
+    
     override func viewDidLoad() {
      
         super.viewDidLoad()
-        //следующий код только для первого запуска при сохранении данных в базу данных
-/*        DispatchQueue.main.async {
-            self.newCity.saveWeathers()
-        }
-*/
+ 
+        indicatorActivity.hidesWhenStopped = true
+        indicatorActivity.isHidden = true
         buttonSave.isEnabled = false
         self.labelNewCity.delegate = self
         labelNewCity.addTarget(self, action: #selector(textFieldChanged), for: .editingChanged)
@@ -74,25 +74,66 @@ class NewCityViewController: UITableViewController {
 
 extension NewCityViewController: UITextFieldDelegate {
     
-   func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         //проверить наличие города
-    if labelNewCity.text?.isEmpty == true {
-        buttonSave.isEnabled = false
-    } else {
-        buttonSave.isEnabled = true
-    }
-    
-      //  buttonSave.isEnabled = true //только в том случае, если город есть, иначе false
+        if labelNewCity.text?.isEmpty == false {
+            indicatorActivity.isHidden = false
+            indicatorActivity.startAnimating()
+            findCity(city: labelNewCity.text!) { (finish) in
+                DispatchQueue.main.async {
+                    if !finish {
+                        self.labelNewCity.text = self.labelNewCity.text! + " - такой город не найден"
+                        self.buttonSave.isEnabled = false
+                    } else {
+                        self.buttonSave.isEnabled = true
+                    }
+                }
+            }
+            indicatorActivity.isHidden = true
+            indicatorActivity.stopAnimating()
+        }
         return true
     }
   
     @objc private func textFieldChanged() {
-        if labelNewCity.text?.isEmpty == false {
-            buttonSave.isEnabled = true
-        } else {
+        if labelNewCity.text?.isEmpty == true {
             buttonSave.isEnabled = false
         }
     }
+
+    
+    func findCity(city: String, handler: @escaping (_ status: Bool) -> ()) {
+        let API_key = "&APPID=2feda31e3043ce19f44dc16f6eab0efe"
+        let URL_string = "http://api.openweathermap.org/data/2.5/weather?q="
+        let cityNew = city.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        let jsonUrlString = URL_string + cityNew! + "&units=metric" + API_key
+        guard let url = URL(string: jsonUrlString) else {
+            print(jsonUrlString)
+            handler(false)
+            return
+        }
+        URLSession.shared.dataTask(with: url) { (data, response, err) in
+            guard let data = data else {
+                handler(false)
+                return
+            }
+            do {
+                _ = try JSONDecoder().decode(WeatherStruct.self, from: data)
+                 handler(true)
+            } catch {
+                handler(false)
+            }
+        }.resume()
+    }
 }
 
+/*
+cell.activityIndicator.hidesWhenStopped = true
+cell.activityIndicator.isHidden = indicatorIsHidden
+if indicatorIsHidden {
+    cell.activityIndicator.stopAnimating()
+} else {
+    cell.activityIndicator.startAnimating()
+}
+*/
